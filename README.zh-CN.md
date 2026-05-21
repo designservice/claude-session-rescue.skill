@@ -26,13 +26,13 @@ npx skills add designservice/claude-session-rescue.skill
 
 ## 为什么需要它
 
-你改了个文件夹名，或者把项目挪了个位置，之前的 Claude Code 对话就找不到了。
+你改了个文件夹名，或者把项目挪了个位置，Claude Code 就不让你继续之前的对话了。
 
 其实它们还在磁盘上——只是留在了旧路径下面。这个 skill 会自动找到它们、把文件迁移过来、总结上次聊到哪，然后整理成一份 markdown 上下文，在新 session 里接着做。
 
 适合这些情况：
 
-- 项目搬家或改名后，之前的对话找不到了。
+- 项目搬家或改名后，之前的对话不能继续了。
 - 想接着某段中断的 Claude Code 讨论继续做。
 - 想把重要对话归档成本地 markdown。
 - 想给新的 agent session 一个清楚、可验证的交接文件。
@@ -52,7 +52,7 @@ npx skills add designservice/claude-session-rescue.skill
 
 | 产物 | 适合什么时候用 | 你会得到什么 |
 |---|---|---|
-| **找到失联对话** | 换路径后旧 session 消失 | 孤儿项目目录候选项和安全迁移确认 |
+| **找到失联对话** | 换路径后旧 session 不能继续 | 孤儿项目目录候选项和安全迁移确认 |
 | **加载对话简介** | 想快速知道上次聊到哪里 | 话题、关键决策、未决问题、涉及文件、最后一轮对话 |
 | **归档完整历史** | 需要 handoff、备份或长期检索 | `.claude-session-rescue/` 下的完整 markdown transcript |
 

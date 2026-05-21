@@ -32,7 +32,7 @@ They're still on disk — just stranded under the old path. This skill finds the
 
 Use it when:
 
-- Old conversations disappeared after a project move or rename.
+- Claude Code won't let you continue old conversations after a project move or rename.
 - You need to continue a past Claude Code session without rereading raw JSONL.
 - You want a durable local archive of an important conversation.
 - You are handing work to a new agent session and need a concise, verified handoff file.
@@ -52,7 +52,7 @@ Use it when:
 
 | Outcome | When you need it | What you get |
 |---|---|---|
-| **Find stranded sessions** | Old conversations disappeared after the project path changed | Candidate orphan project directories and a safe migration prompt |
+| **Find stranded sessions** | Can't resume old conversations after the project path changed | Candidate orphan project directories and a safe migration prompt |
 | **Load a session summary** | You want to remember what happened in a previous conversation | Topic, decisions, open questions, files touched, and the last exchange |
 | **Archive full history** | You need a handoff or permanent record | A markdown file under `.claude-session-rescue/` with the complete transcript |
 
