@@ -1,14 +1,14 @@
 <div align="center">
 
-# 不想丢对话.skill
+# Claude Session Rescue
 
-<sub>`claude-session-rescue.skill`</sub>
+<sub>`claude-session-rescue.skill` · 不想丢对话</sub>
 
-**Claude Code 项目文件夹改名 / 搬家后，把散落的旧对话找回来，并把其中一个加载成可继续聊的上下文。**
+**Don't lose the conversation. Recover Claude Code sessions after moving, renaming, or reopening a project from a different path.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Agent-Agnostic](https://img.shields.io/badge/Agent-Agnostic-blueviolet)](https://skills.sh)
-[![Skills](https://img.shields.io/badge/skills.sh-Compatible-green)](https://skills.sh)
+[![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-green)](https://skills.sh)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-Compatible-cc785c)](https://claude.com/claude-code)
 [![Python](https://img.shields.io/badge/Python-3.8+-3776ab)](https://www.python.org)
 
@@ -16,160 +16,279 @@
 npx skills add designservice/claude-session-rescue.skill
 ```
 
-[做什么](#做什么) · [怎么用](#怎么用) · [产物长什么样](#产物长什么样) · [亮点](#亮点) · [跨平台](#跨平台)
+[Why it exists](#why-it-exists) · [What it does](#what-it-does) · [Install](#install) · [Usage](#usage) · [Output](#output) · [Chinese](#中文版)
 
 </div>
 
 ---
 
-> 你有没有过这种经历：把项目文件夹换了个位置或者改了个名，再打开 Claude Code，`/resume` 里之前的对话全没了？这个 skill 就是干这个的——把散落在 Claude Code 项目存储里、跟当前项目失联的旧对话找回来，挪到该在的地方，并把你想看的那一段加载成"可继续聊的上下文"。
+## Why It Exists
 
-## 做什么
+Claude Code stores project sessions under an encoded project path. Rename a folder, move the project, or open it from a different absolute path, and old conversations can vanish from `/resume` even though the raw session files still exist on disk.
 
-| 产物 | 适合什么时候用 | 你要做的 |
+**Claude Session Rescue finds those stranded sessions, migrates them back to the current project, and turns one selected conversation into clean continuation context.**
+
+Use it when:
+
+- `/resume` no longer shows conversations after a project move or rename.
+- You need to continue a past Claude Code session without rereading raw JSONL.
+- You want a durable local archive of an important conversation.
+- You are handing work to a new agent session and need a concise, verified handoff file.
+
+> Safe by default: the skill asks before migration, archives old directories instead of deleting them, and writes recovered histories into your project.
+
+## Before / After
+
+| Before | After |
+|---|---|
+| `/resume` shows no useful old sessions | Orphaned sessions are found and listed |
+| Claude Code conversations are stranded under a previous project path | Selected project storage is migrated to the current path |
+| You do not know which JSONL file contains the work you need | Each session is summarized with topic, decisions, files, and last exchange |
+| A new agent session has no clean handoff | A markdown archive is saved for continuation |
+
+## What It Does
+
+| Outcome | When you need it | What you get |
 |---|---|---|
-| 🔍 **找到失联对话** | 换路径 / 改文件夹名之后 `/resume` 里找不到旧对话 | 跑 skill，确认要不要把它搬到当前项目 |
-| 📝 **简介加载到对话** | 想快速回忆某次讨论：话题、关键决策、未决问题、涉及文件 | 选一个 session，简介立刻显示在对话里 |
-| 📄 **完整对话存档** | 想以后还能查、能让新 session 加载、能分享给协作者 | 自动存到 `<项目>/.claude-session-rescue/<id>-<date>.md` |
+| **Find stranded sessions** | Old conversations disappeared after the project path changed | Candidate orphan project directories and a safe migration prompt |
+| **Load a session summary** | You want to remember what happened in a previous conversation | Topic, decisions, open questions, files touched, and the last exchange |
+| **Archive full history** | You need a handoff or permanent record | A markdown file under `.claude-session-rescue/` with the complete transcript |
 
-**常见用法**：
+This is more than a JSONL exporter. It handles the boring edge cases that usually make rescued context unreliable:
 
-- 项目搬家后所有过去对话都找不到了：**找到失联对话 + 简介 + 存档**
-- 想接续某段中断的讨论：**简介 + 存档**（让新 session 读那个文件继续聊）
-- 单纯归档 / 备份某段重要对话：**存档**
+- rewrites moved project paths inside migrated session files;
+- preserves Claude Code project memory folders;
+- detects forked sessions and highlights the canonical longest version;
+- verifies file paths and skill references mentioned in the transcript;
+- writes markdown that survives strict preview engines without fragile HTML, `file://` links, or hidden comments;
+- keeps everything local.
 
----
+## Install
 
-## 怎么用
-
-### 安装
-
-如果你主要在 Claude Code 里用：
+### Claude Code
 
 ```bash
 git clone https://github.com/designservice/claude-session-rescue.skill \
   ~/.claude/skills/claude-session-rescue
 ```
 
-只需要 Python 3.8+，stdlib 够用，无额外依赖。
+Requires Python 3.8+. No third-party packages are needed.
 
-### 跑
+### skills.sh
 
-在 Claude Code 里：
-
+```bash
+npx skills add designservice/claude-session-rescue.skill
 ```
+
+## Usage
+
+In Claude Code:
+
+```text
 /claude-session-rescue
 ```
 
-或者自然语言任意一句：「我刚换了文件夹路径，之前的对话怎么找回来？」「帮我恢复一下上次那个聊设计的 session」「想把上次的对话存一份在本地」——skill 都会触发。
+Natural language works too:
 
-也可以直接指定 session id：
-
+```text
+I moved this project and my old Claude sessions disappeared. Help me recover them.
 ```
+
+You can also target a known session id:
+
+```text
 /claude-session-rescue 28df8c9e
 ```
 
-### 流程
+## Workflow
 
-| Phase | 做什么 | 用户操作 |
+| Phase | What happens | Your action |
 |---|---|---|
-| 1. 找散落对话 | 探测当前项目同名但路径不同的孤儿目录 | 确认要不要迁移 |
-| 2. 列出对话 | 当前项目所有 session（含 fork 关系标注） | 选一个 |
-| 3. 加载 | 抽取 + 验证 + 渲染 | 看简介，决定下一步 |
+| 1. Detect orphans | Finds same-name project directories stored under older paths | Confirm whether to migrate |
+| 2. List sessions | Shows sessions for the current project, including fork relationships | Pick one conversation |
+| 3. Extract context | Summarizes, verifies, and renders the selected session | Read the summary or continue from the archive |
 
-如果选的是 fork（共同前缀很长但不是 canonical 版本），skill 会再次确认，避免你加载几乎完全冗余的内容。
+If you choose a non-canonical fork, the skill asks for confirmation before loading near-duplicate context.
+
+## Output
+
+```text
+<project-root>/
+└── .claude-session-rescue/
+    └── <short-uuid>-<YYYY-MM-DD>.md
+```
+
+Each generated archive includes:
+
+- what the last session was about;
+- project and session metadata;
+- key decisions;
+- open questions and next steps;
+- files mentioned, with path verification notes;
+- the final exchange;
+- a ready-to-paste continuation prompt;
+- the complete conversation history.
+
+To continue in a new Claude session, ask it to read the generated markdown file and start from the first item under "Open questions and next steps."
+
+## Cross-Agent Support
+
+The repository includes lightweight entry files for multiple agent runtimes:
+
+| Agent | Entry file |
+|---|---|
+| Claude Code / skills.sh | `SKILL.md` |
+| Codex / OpenAI Codex CLI | `AGENTS.md` |
+| Gemini CLI | `GEMINI.md` |
+
+The Python scripts are standalone and can be called directly:
+
+```bash
+python3 scripts/find_orphans.py
+python3 scripts/migrate.py --orphan <dir> --old-cwd <path> --new-cwd <path>
+python3 scripts/list_sessions.py --dir <encoded_project_dir>
+python3 scripts/extract.py <session.jsonl> --format markdown --demote 2 --verify-paths "$(pwd)"
+```
+
+`references/session_history_format.md` documents the archive format for agents that need to generate or consume session history files.
+
+## Limitations
+
+- Works from local Claude Code session files; it cannot recover conversations that were never saved locally.
+- Requires filesystem access to `~/.claude/projects/`.
+- Reconstructs context from saved transcripts; it does not recreate hidden model state.
+- Loading multiple old sessions into one new chat is intentionally discouraged because it can mix conflicting decisions and next steps.
+
+## Privacy
+
+Claude Session Rescue never sends session data to an external service. It only reads local JSONL files under `~/.claude/projects/`, writes archives under the current project, and may archive migrated orphan directories as `~/.claude/projects/.trash-*` for rollback.
 
 ---
 
-## 产物长什么样
+## 中文版
+
+<div align="center">
+
+# Claude Session Rescue
+
+<sub>`claude-session-rescue.skill` · 不想丢对话</sub>
+
+**Claude Code 项目文件夹改名、搬家、换路径后，把 `/resume` 里消失的旧对话找回来，并整理成可继续聊的上下文。**
+
+</div>
+
+## 为什么需要它
+
+Claude Code 会按项目的绝对路径存储 session。项目文件夹一改名、一搬家，或者从另一个路径重新打开，旧对话就可能不再出现在 `/resume` 里。它们通常没有丢，只是留在了旧路径对应的项目存储目录里。
+
+**Claude Session Rescue 会找到这些失联 session，安全迁移到当前项目，并把你选中的一段对话整理成可接续的 markdown 上下文。**
+
+适合这些情况：
+
+- 项目搬家或改名后，`/resume` 里看不到过去的对话。
+- 想接着某段中断的 Claude Code 讨论继续做。
+- 想把重要对话归档成本地 markdown。
+- 想给新的 agent session 一个清楚、可验证的交接文件。
+
+> 默认安全：迁移前会先确认，旧目录不会直接删除，而是归档为可回滚的 `.trash-*`，恢复出的历史文件会写在当前项目里。
+
+## 前后对比
+
+| 之前 | 之后 |
+|---|---|
+| `/resume` 里没有需要的旧 session | 找到并列出失联 session |
+| Claude Code 对话留在旧项目路径下 | 选中的项目存储迁移到当前路径 |
+| 不知道哪个 JSONL 才是要找的那段工作 | 每个 session 都有话题、决策、文件和最后一轮对话摘要 |
+| 新 agent session 没有清楚 handoff | 生成可继续读取的 markdown 归档 |
+
+## 它做什么
+
+| 产物 | 适合什么时候用 | 你会得到什么 |
+|---|---|---|
+| **找到失联对话** | 换路径后旧 session 消失 | 孤儿项目目录候选项和安全迁移确认 |
+| **加载对话简介** | 想快速知道上次聊到哪里 | 话题、关键决策、未决问题、涉及文件、最后一轮对话 |
+| **归档完整历史** | 需要 handoff、备份或长期检索 | `.claude-session-rescue/` 下的完整 markdown transcript |
+
+它不只是导出 JSONL。它处理了恢复对话时真正容易出错的地方：
+
+- 迁移 session 时重写内部旧项目路径；
+- 保留 Claude Code 的项目 memory 目录；
+- 检测 forked sessions，并标出最长的 canonical 版本；
+- 验证 transcript 里提到的文件路径和 skill 引用；
+- 生成对 markdown preview 友好的格式，避免 HTML、`file://`、隐藏注释等兼容性问题；
+- 全程只处理本地文件，不上传任何内容。
+
+## 安装
+
+### Claude Code
+
+```bash
+git clone https://github.com/designservice/claude-session-rescue.skill \
+  ~/.claude/skills/claude-session-rescue
+```
+
+只需要 Python 3.8+，不需要额外依赖。
+
+### skills.sh
+
+```bash
+npx skills add designservice/claude-session-rescue.skill
+```
+
+## 使用
+
+在 Claude Code 里运行：
+
+```text
+/claude-session-rescue
+```
+
+也可以直接用自然语言触发：
+
+```text
+我刚把项目文件夹换了路径，之前的 Claude 对话不见了，帮我找回来。
+```
+
+如果已经知道 session id：
+
+```text
+/claude-session-rescue 28df8c9e
+```
+
+## 流程
+
+| 阶段 | 做什么 | 你要做什么 |
+|---|---|---|
+| 1. 检测孤儿目录 | 找到同名项目但旧路径下的 Claude Code 存储目录 | 确认是否迁移 |
+| 2. 列出 session | 展示当前项目的所有 session，并标注 fork 关系 | 选一段对话 |
+| 3. 抽取上下文 | 总结、验证、渲染为 markdown | 阅读简介，或从归档继续接上 |
+
+如果你选的是非 canonical fork，skill 会再次确认，避免把几乎重复的上下文加载进新对话。
+
+## 输出
 
 ```text
 <项目根>/
 └── .claude-session-rescue/
-    └── <短-uuid>-<YYYY-MM-DD>.md   ← 完整对话历史文件
+    └── <短-uuid>-<YYYY-MM-DD>.md
 ```
 
-每个文件 9 个章节：
+每个归档文件包含：
 
-```markdown
-# Session history: <主题>
-_来源：<原 jsonl 路径>_
-_生成时间：<日期> · 工具：claude-session-rescue_
+- 上次聊到哪里；
+- 项目和 session 元信息；
+- 关键决策；
+- 未决问题与下一步；
+- 涉及文件和路径验证说明；
+- 最后一轮对话；
+- 可直接粘贴的新 session 接续 prompt；
+- 完整对话历史。
 
-## 上次聊到            ← 一句话 hook，新 session 一眼接续
+新 Claude session 想接续时，让它读取这个 markdown 文件，并从「未决问题与下一步」第一条开始。
 
-## 概览                ← 项目 / 话题 / 状态 / 原 session 元信息
+## 跨 Agent 支持
 
-## 关键决策            ← 带时间戳的决策列表
-
-## 未决问题与下一步    ← 没聊完的、待办的
-
-## 涉及文件            ← 绝对路径，编辑器里 Cmd+click 直接开
-
-## 最后一轮对话         ← 末尾对话原文（带 🟩/🟧 颜色标签）
-
-## 如何在新 session 接续 ← 可直接粘贴的 prompt
-
-## 完整对话历史         ← 全部 53/189/... 轮原文，每轮 --- 分隔
-```
-
-新 Claude session 想接续？告诉它读这个文件，然后从「未决问题与下一步」第一条接着干。
-
----
-
-## 亮点
-
-这个 skill 不只是"导出 jsonl"——它在几个隐藏的坑上做了功课。
-
-### 1. 自动跟随项目迁移
-
-当你把项目文件夹改名或挪位置，Claude Code 的旧 session 文件留在原 encoded dir 里失联。skill 自动探测「同名 basename 但路径不同」的孤儿目录，迁移时一起搬：
-
-- ✅ jsonl 文件（重写内部所有路径引用，不只是 cwd 字段）
-- ✅ `memory/` 子目录（Claude Code 的项目记忆）
-- ✅ 旧目录归档为 `.trash-<timestamp>`，永不删除，可回滚
-
-### 2. 检测 fork、避免加载冗余对话
-
-Claude Code 偶尔会把一段对话存到两个 jsonl 里（一个被中断、一个继续完成）。它们前 N 轮完全相同，后面分叉。普通工具会把它们当独立 session 列出，你要分别 recall 两遍，看到 99% 相同的内容。
-
-这个 skill 用前 10 轮的 fingerprint 检测 fork 关系，列表里标注「fork of X, 共同前缀 49 轮，独有 2 轮」，并把最长的那个设为 canonical。如果你选了非 canonical 的那个，会再次确认。
-
-### 3. 自动语言匹配
-
-旧 session 是中文聊的就用中文写简介；英文是英文。靠 CJK 字符比例判断主导语言，标签 `🟩 你`（teal 绿）和 `🟧 Claude`（橘红，匹配 Claude 品牌色）。中英以外的语言按原则翻译章节名。
-
-### 4. 路径与 skill 引用全部验证
-
-旧对话里 Claude 说"我已经写到 `path/to/foo.md`"——但那个文件早就移到了别处。这个 skill 扫 transcript 里**每一个**路径和 skill 命令引用，验证存在性：
-
-- 路径存在 → 不动
-- 路径不存在但有唯一匹配（同名文件在别处）→ 标注 `⚠️ 实际位于 /绝对路径`
-- 路径不存在且无匹配 → 标注 `⚠️ 此文件未找到`
-- skill 引用如 `/start` `/brainstorm` `/setup-engine` → 验证 `~/.claude/skills/<name>/SKILL.md` 是否存在
-
-`templates/`、`examples/`、`samples/`、`boilerplate/` 等目录里的同名文件自动过滤（几乎从来不是用户在找的真实文件）。
-
-### 5. 输出格式给 markdown viewer 友好
-
-很多 markdown preview 引擎 sanitize 掉 HTML，所以这个 skill：
-
-- 不用 `<!-- HTML 注释 -->`（很多 viewer 显示成可见文字）
-- 不用 `<span style="color:...">`（颜色被 sanitize，标签变孤儿文字）
-- 不用 `[label](file:///path)`（很多 viewer 禁用 `file://` 协议，链接看着可点其实不能点）
-- 不用 `<details>` 折叠（同样 HTML 风险）
-
-改用：颜色 emoji 表示发言人、纯代码格式绝对路径、内嵌 header 自动降级避免撞文档大纲。
-
-### 6. 一个对话一次 recall
-
-加载两段旧对话到同一个新 session 会让上下文混乱（两套决策、两套"上次聊到"）。skill 强制每个新 session 只 recall 一次。需要看另一段？开新 session。
-
----
-
-## 跨平台
-
-不绑定 Claude Code。仓库里放了几个轻量入口文件让其他 agent 也能用同一套流程：
+仓库里包含几个轻量入口文件：
 
 | Agent | 入口文件 |
 |---|---|
@@ -177,26 +296,27 @@ Claude Code 偶尔会把一段对话存到两个 jsonl 里（一个被中断、�
 | Codex / OpenAI Codex CLI | `AGENTS.md` |
 | Gemini CLI | `GEMINI.md` |
 
-每个入口文件只有几行，告诉对应 agent 去读 `SKILL.md`。能力名映射（`Bash` / `Read` / `Write` / `AskUserQuestion` 怎么对应到你那个平台的工具）写在 `AGENTS.md` 里。
-
-`scripts/*.py` 都是独立可调用的：
+所有核心脚本都是独立 Python：
 
 ```bash
 python3 scripts/find_orphans.py
 python3 scripts/migrate.py --orphan <dir> --old-cwd <path> --new-cwd <path>
 python3 scripts/list_sessions.py --dir <encoded_project_dir>
-python3 scripts/extract.py <session.jsonl> --format markdown --demote 2 --verify-paths $(pwd)
+python3 scripts/extract.py <session.jsonl> --format markdown --demote 2 --verify-paths "$(pwd)"
 ```
 
-`references/session_history_format.md` 是输出格式 spec，能告诉任何 agent 怎么写这种文件。
+`references/session_history_format.md` 是输出格式 spec，方便其他 agent 读取或生成同类 session history 文件。
 
----
+## 限制
 
-## 致谢
+- 只能从本机 Claude Code session 文件恢复，不能恢复从未保存到本地的对话。
+- 需要访问 `~/.claude/projects/`。
+- 它从 transcript 重建上下文，不会恢复隐藏的模型状态。
+- 不建议把多个旧 session 加载进同一个新对话，因为不同决策和下一步容易混在一起。
 
-这个 skill 的设计教训大多来自自己踩坑：HTML 注释不被 markdown 剥离、`file://` 协议被 sanitize、`<span style>` 颜色被去除、Python `\w` 在 CJK 上下文里误判、`templates/` 目录干扰 fuzzy search、forked sessions 不容易识别…… 每个都在 `SKILL.md` 的「Why the design looks like this」章节里记了来由，方便 contributor 不重蹈覆辙。
+## 隐私
 
-设计灵感与 README 风格参考自 [`lazy-english-reader.skill`](https://github.com/designservice/lazy-english-reader.skill)。
+Claude Session Rescue 不会把对话内容发到任何外部服务。它只读取本机 `~/.claude/projects/` 下的 JSONL，归档写到当前项目的 `.claude-session-rescue/`，迁移后的旧目录会以 `~/.claude/projects/.trash-*` 形式保留，方便回滚。
 
 ---
 
