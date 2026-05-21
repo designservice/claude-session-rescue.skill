@@ -26,7 +26,7 @@ npx skills add designservice/claude-session-rescue.skill
 
 ## Why It Exists
 
-You renamed a folder, moved a project, or reorganized your directory structure. Now your old Claude Code conversations are nowhere to be found.
+You renamed a folder, moved a project, or reorganized your directory structure. Now Claude Code won't let you resume your old conversations.
 
 They're still on disk — just stranded under the old path. This skill finds them, migrates the files, summarizes where you left off, and gives you a clean markdown handoff to continue in a new session.
 
