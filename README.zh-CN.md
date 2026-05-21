@@ -4,7 +4,7 @@
 
 <sub>`claude-session-rescue.skill`</sub>
 
-**Claude Code 项目文件夹改名、搬家、换路径后，把 `/resume` 里消失的旧对话找回来，并整理成可继续聊的上下文。**
+**项目文件夹搬了家？对话跟着走，接上回聊到哪。**
 
 [English](README.md)
 
@@ -26,13 +26,13 @@ npx skills add designservice/claude-session-rescue.skill
 
 ## 为什么需要它
 
-Claude Code 会按项目的绝对路径存储 session。项目文件夹一改名、一搬家，或者从另一个路径重新打开，旧对话就可能不再出现在 `/resume` 里。它们通常没有丢，只是留在了旧路径对应的项目存储目录里。
+你改了个文件夹名，或者把项目挪了个位置，之前的 Claude Code 对话就找不到了。
 
-**不想丢对话.skill 会找到这些失联 session，安全迁移到当前项目，并把你选中的一段对话整理成可接续的 markdown 上下文。**
+其实它们还在磁盘上——只是留在了旧路径下面。这个 skill 会自动找到它们、把文件迁移过来、总结上次聊到哪，然后整理成一份 markdown 上下文，在新 session 里接着做。
 
 适合这些情况：
 
-- 项目搬家或改名后，`/resume` 里看不到过去的对话。
+- 项目搬家或改名后，之前的对话找不到了。
 - 想接着某段中断的 Claude Code 讨论继续做。
 - 想把重要对话归档成本地 markdown。
 - 想给新的 agent session 一个清楚、可验证的交接文件。

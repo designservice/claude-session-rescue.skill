@@ -4,7 +4,7 @@
 
 <sub>`claude-session-rescue.skill`</sub>
 
-**Don't lose the conversation. Recover Claude Code sessions after moving, renaming, or reopening a project from a different path.**
+**Project folder moved? Your conversations follow.**
 
 [中文说明](README.zh-CN.md)
 
@@ -26,13 +26,13 @@ npx skills add designservice/claude-session-rescue.skill
 
 ## Why It Exists
 
-Claude Code stores project sessions under an encoded project path. Rename a folder, move the project, or open it from a different absolute path, and old conversations can vanish from `/resume` even though the raw session files still exist on disk.
+You renamed a folder, moved a project, or reorganized your directory structure. Now your old Claude Code conversations are nowhere to be found.
 
-**Claude Session Rescue finds those stranded sessions, migrates them back to the current project, and turns one selected conversation into clean continuation context.**
+They're still on disk — just stranded under the old path. This skill finds them, migrates the files, summarizes where you left off, and gives you a clean markdown handoff to continue in a new session.
 
 Use it when:
 
-- `/resume` no longer shows conversations after a project move or rename.
+- Old conversations disappeared after a project move or rename.
 - You need to continue a past Claude Code session without rereading raw JSONL.
 - You want a durable local archive of an important conversation.
 - You are handing work to a new agent session and need a concise, verified handoff file.
