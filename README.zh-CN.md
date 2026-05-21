@@ -4,7 +4,7 @@
 
 <sub>`claude-session-rescue.skill`</sub>
 
-**项目文件夹搬了家？对话跟着走，接上回聊到哪。**
+**项目文件夹搬了家？对话跟着走，接着上回聊。**
 
 [English](README.md)
 
